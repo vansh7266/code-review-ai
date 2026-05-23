@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Developer Dashboard - ReviewAI</title>
+  <meta name="description" content="Manage your code review logs, active pull requests, and review statistics.">
+  
+  <script>
+    {
+      const colorScheme = localStorage.getItem("color-scheme");
+      if (colorScheme) {
+        document.querySelector('meta[name="color-scheme"]').content = colorScheme;
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">⌘</div>
+      <span class="text-gradient">ReviewAI</span>
+    </a>
+    <nav style="display: flex; align-items: center; gap: 2rem;">
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link" id="nav-home">Home</a></li>
+        <li><a href="/dashboard" class="nav-link active" id="nav-dashboard">Dashboard</a></li>
+      </ul>
+      <div class="user-profile" id="profile-container" style="display: none;">
+        <span id="user-name" style="font-weight: 500; font-size: 0.9rem;">Octocat</span>
+        <img id="user-avatar" class="user-avatar" src="https://images.unsplash.com/photo-1618401471353-b98aedd07871?auto=format&fit=crop&q=80&w=100" alt="Avatar">
+      </div>
+    </nav>
+  </header>
+
+  <main class="dashboard-container">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title" id="dashboard-header-title">Code Reviews</h1>
+        <p style="color: var(--text-secondary);">Submit new pull requests or review previously executed audit files.</p>
+      </div>
+      <button class="btn-secondary" onclick="logoutUser()">Logout</button>
+    </div>
+
+    <!-- Submit PR URL Form -->
+    <div class="glass-card review-submission-card" id="submission-card">
+      <h2 style="font-family: var(--font-heading); font-size: 1.25rem;">New Pull Request Audit</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Input the GitHub PR URL to retrieve the source branch code and analyze changes with Gemini 1.5 Flash.</p>
+      
+      <form onsubmit="submitPR(event)">
+        <div class="pr-input-group">
+          <div class="pr-input-container">
+            <span class="pr-input-icon">🔗</span>
+            <input type="url" class="pr-input" id="pr-url-input" required 
+                   placeholder="https://github.com/owner/repository/pull/12"
+                   pattern="https:\/\/github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/pull\/[0-9]+">
+          </div>
+          <button type="submit" class="btn-primary" id="btn-submit-pr">
+            <span>Analyze Branch</span>
+            <div class="loader-spinner" id="pr-loader" style="width: 1rem; height: 1rem; border-width: 2px; display: none;"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Counters Grid -->
+    <section class="stats-grid">
+      <div class="glass-card stat-card" style="border-left: 3px solid #3b82f6;">
+        <div class="stat-value" id="stat-total-reviews">0</div>
+        <div class="stat-label">Total Audits</div>
+      </div>
+      <div class="glass-card stat-card" style="border-left: 3px solid var(--color-critical);">
+        <div class="stat-value" id="stat-critical-bugs">0</div>
+        <div class="stat-label">Critical Issues</div>
+      </div>
+      <div class="glass-card stat-card" style="border-left: 3px solid var(--color-major);">
+        <div class="stat-value" id="stat-security-issues">0</div>
+        <div class="stat-label">Security Flaws</div>
+      </div>
+      <div class="glass-card stat-card" style="border-left: 3px solid var(--color-minor);">
+        <div class="stat-value" id="stat-code-smells">0</div>
+        <div class="stat-label">Code Smells</div>
+      </div>
+    </section>
+
+    <!-- History list section -->
+    <section>
+      <h2 class="history-section-title" id="history-section-title">Audit History</h2>
+      <div class="glass-card history-card">
+        <div style="overflow-x: auto; width: 100%;">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Pull Request</th>
+                <th>Repository</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Dynamically populated via JS -->
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+                  No code review audits logged. Submit a pull request URL above to begin.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
