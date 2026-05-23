@@ -1,5 +1,6 @@
 import os
 import json
+import asyncio
 import google.generativeai as genai
 from backend.config import settings
 
@@ -16,6 +17,7 @@ class GeminiService:
         """Sends raw PR diff output to Gemini, asking it to audit the code changes and produce JSON comments.
 
         Returns a parsed list of review comments: file_path, line_number, severity, category, and comment text.
+        Runs non-blocking in a thread pool executor.
         """
         if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY == "your_gemini_api_key":
             # Return dummy reviews in dry-run/unconfigured states
@@ -50,10 +52,14 @@ class GeminiService:
 
         prompt = f"Analyze the following git diff and output the code review issues:\n\n{diff_text}"
         
-        # Call the model
-        response = model.generate_content(
-            prompt,
-            generation_config={"response_mime_type": "application/json"}
+        # Call the model via thread executor to prevent blocking FastAPI's event loop
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None,
+            lambda: model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
         )
 
         try:
