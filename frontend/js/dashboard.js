@@ -203,10 +203,16 @@ async function submitPR(event) {
         window.location.href = `/review?id=${data.review_id || 1}`;
       }, 1000);
     } else {
+      prUrlInput.disabled = false;
+      btnSubmit.disabled = false;
+      loader.style.display = "none";
       alert("Failed to analyze repository. Serves backup review flow instead.");
       window.location.href = `/review?id=1`;
     }
   } catch (err) {
+    prUrlInput.disabled = false;
+    btnSubmit.disabled = false;
+    loader.style.display = "none";
     console.error("Endpoint unreachable. Routing to fallback dashboard review.", err);
     // In local development mock-run, redirect to standard mock ID
     setTimeout(() => {
